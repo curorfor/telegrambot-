@@ -365,33 +365,50 @@ bot.on('message:text', async (ctx) => {
 
 // Notification system
 function setupNotifications() {
+    console.log('🔔 Notification system initialized - checking every minute');
+    
     // Check every minute for due tasks
     cron.schedule('* * * * *', async () => {
         const now = new Date();
+        console.log(`⏰ Checking for due tasks at: ${now.toLocaleString('uz-UZ')}`);
+        
+        let totalTasks = 0;
+        let dueTasks = 0;
         
         for (const userId in userData) {
             const user = userData[userId];
             
             for (const task of user.tasks) {
+                totalTasks++;
                 if (!task.completed && !task.notified) {
                     const taskTime = new Date(task.date);
+                    const timeDiff = taskTime - now;
+                    
+                    console.log(`📋 Task: "${task.name}" for user ${userId}`);
+                    console.log(`   📅 Due: ${formatDate(taskTime)}`);
+                    console.log(`   ⏳ Time diff: ${Math.round(timeDiff / 1000 / 60)} minutes`);
                     
                     // Send notification if task time has arrived (within 1 minute window)
                     if (taskTime <= now && (now - taskTime) < 60000) {
+                        dueTasks++;
                         try {
                             const priority = getPriorityEmoji(task.priority);
                             const message = `⏰ **Vazifa vaqti keldi!**\n\n📝 **Nom:** ${task.name}\n📊 **Daraja:** ${priority} ${task.priority.toUpperCase()}\n⏰ **Vaqt:** ${formatDate(taskTime)}`;
                             
+                            console.log(`🚀 Sending notification to user ${userId}: ${task.name}`);
                             await bot.api.sendMessage(userId, message, { parse_mode: 'Markdown' });
                             task.notified = true;
                             await saveData();
+                            console.log(`✅ Notification sent successfully!`);
                         } catch (error) {
-                            console.error(`Error sending notification to user ${userId}:`, error);
+                            console.error(`❌ Error sending notification to user ${userId}:`, error);
                         }
                     }
                 }
             }
         }
+        
+        console.log(`📊 Check complete: ${totalTasks} total tasks, ${dueTasks} due tasks processed\n`);
     });
 }
 
