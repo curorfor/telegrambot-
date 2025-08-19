@@ -1,0 +1,33 @@
+# Development Dockerfile with hot reload
+FROM node:20-alpine
+
+# Install nodemon for hot reload
+RUN npm install -g nodemon
+
+# Create app user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S botuser -u 1001
+
+# Set working directory
+WORKDIR /app
+
+# Change ownership of the app directory
+RUN chown -R botuser:nodejs /app
+
+# Switch to app user
+USER botuser
+
+# Copy package files
+COPY --chown=botuser:nodejs package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Create data directory
+RUN mkdir -p /app/data
+
+# Expose port for debugging
+EXPOSE 3000 9229
+
+# Start with nodemon for hot reload
+CMD ["npm", "run", "dev"]

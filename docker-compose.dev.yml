@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  telegram-bot-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: telegram-todo-bot-dev
+    restart: unless-stopped
+    
+    # Environment variables
+    environment:
+      - NODE_ENV=development
+      - DATA_FILE=/app/data/tasks.json
+    
+    # Volume mapping for development
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - bot_data_dev:/app/data
+    
+    # Enable hot reload
+    command: ["npm", "run", "dev"]
+    
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+# Named volumes for data persistence
+volumes:
+  bot_data_dev:
+    driver: local

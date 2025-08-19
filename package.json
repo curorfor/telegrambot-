@@ -1,0 +1,30 @@
+{
+  "name": "telegram-todo-bot",
+  "version": "1.0.0",
+  "description": "A Telegram To-Do bot using grammY",
+  "main": "bot.js",
+  "type": "module",
+  "scripts": {
+    "start": "node bot.js",
+    "dev": "nodemon bot.js",
+    "docker:build": "docker build -t telegram-todo-bot .",
+    "docker:run": "docker run -d --name telegram-todo-bot telegram-todo-bot",
+    "docker:stop": "docker stop telegram-todo-bot && docker rm telegram-todo-bot",
+    "docker:logs": "docker logs -f telegram-todo-bot",
+    "compose:up": "docker-compose up -d",
+    "compose:down": "docker-compose down",
+    "compose:logs": "docker-compose logs -f",
+    "compose:dev": "docker-compose -f docker-compose.dev.yml up",
+    "compose:dev:down": "docker-compose -f docker-compose.dev.yml down"
+  },
+  "dependencies": {
+    "grammy": "^1.21.1",
+    "node-cron": "^3.0.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": ["telegram", "bot", "todo", "grammy"],
+  "author": "",
+  "license": "MIT"
+}
