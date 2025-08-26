@@ -9,10 +9,15 @@ services:
     container_name: telegram-todo-bot
     restart: unless-stopped
     
+    # Load environment variables from local .env (contains BOT_TOKEN)
+    env_file:
+      - .env
+
     # Environment variables
     environment:
       - NODE_ENV=production
       - DATA_FILE=/app/data/tasks.json
+      - BOT_TOKEN=${BOT_TOKEN}
     
     # Volume for persistent data
     volumes:

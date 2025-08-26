@@ -11,6 +11,12 @@ grammY kutubxonasi yordamida yaratilgan Telegram To-Do bot.
 - ⏰ Avtomatik eslatma (notification) tizimi
 - 📊 Vazifa darajalari (low, medium, high)
 - 💾 JSON fayl orqali ma'lumotlar saqlash
+- 🔄 Takrorlanadigan vazifalar
+- 🔔 Smart eslatmalar (1 kun/1 soat/15 daqiqa/vaqti)
+- 🧩 Shablonlar orqali tez vazifa yaratish
+- 🎙️ Ovozli xabar va 📎 media biriktirmalar
+- 🕌 Namoz vaqtlari (/prayer, /setprayerregion) va bildirishnomalar
+- 🪪 Ro'yxatdan o'tish va yangilanishlar xabari (/register, /updates)
 
 ## O'rnatish
 
@@ -47,6 +53,27 @@ Barcha vazifalar ro'yxatini ko'rsatadi. Har bir vazifada:
 Vazifani bajarilgan deb belgilash uchun
 
 ### /delete
+### /templates
+Tayyor vazifa shablonlari orqali tez workflow yaratish
+
+### /prayer
+Hudud bo'yicha bugungi namoz vaqtlari. Masalan: `/prayer Toshkent`
+
+### /setprayerregion
+Hududni tanlash uchun interaktiv menyu. Ro'yxatdan o'tgan foydalanuvchilarga 15 daqiqa oldin va ayni vaqtda bildirishnomalar yuboriladi.
+
+### /register
+Ro'yxatdan o'ting va quyidagilarga ega bo'ling:
+- 📨 Yangi funksiyalar haqida avtomatik xabarlar
+- 🕌 Namoz vaqti bildirishnomalari (15 daqiqa oldin va ayni vaqtda)
+- 🔔 Kelgusidagi maxsus ogohlantirishlar
+
+### /unregister
+Barcha yangilanish va namoz bildirishnomalarini o'chirish
+
+### /updates
+Hozirgi versiyadagi yangi funksiyalar ro'yxati
+
 Vazifani butunlay o'chirish uchun
 
 ## Eslatma tizimi
@@ -101,6 +128,8 @@ npm run docker:run
 # or
 docker run -d --name telegram-todo-bot \
   -v telegram_bot_data:/app/data \
+  -e NODE_ENV=production \
+  -e DATA_FILE=/app/data/tasks.json \
   telegram-todo-bot
 ```
 
@@ -130,6 +159,7 @@ npm run docker:stop
 
 - `DATA_FILE` - Path to tasks JSON file (default: `./tasks.json`)
 - `NODE_ENV` - Environment (development/production)
+- `BOT_TOKEN` - (optional) Bot token as env var if you externalize it
 
 ### Volume Management
 
@@ -146,3 +176,8 @@ To restore data:
 ```bash
 docker run --rm -v bot_data:/data -v $(pwd):/backup alpine sh -c "cd /data && tar xzf /backup/backup.tar.gz --strip 1"
 ```
+
+## Troubleshooting
+
+- If you see "terminated by other getUpdates request", ensure only one instance is running (`docker ps`, `docker stop` others).
+- If namoz vaqtlari API sekin javob bersa, bot fallback endpointlardan foydalanadi va natijani kesh qiladi.

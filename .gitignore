@@ -3,6 +3,11 @@ node_modules/
 
 # Data files
 tasks.json
+*.backup
+*.bak
+
+# Backup directories
+backups/
 
 # Logs
 *.log

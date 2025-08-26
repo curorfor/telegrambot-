@@ -1,7 +1,7 @@
 {
   "name": "telegram-todo-bot",
-  "version": "1.0.0",
-  "description": "A Telegram To-Do bot using grammY",
+  "version": "2.0.0",
+  "description": "A modern, modular Telegram To-Do bot using grammY",
   "main": "bot.js",
   "type": "module",
   "scripts": {
@@ -18,13 +18,19 @@
     "compose:dev:down": "docker-compose -f docker-compose.dev.yml down"
   },
   "dependencies": {
+    "dotenv": "^17.2.1",
     "grammy": "^1.21.1",
     "node-cron": "^3.0.3"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
   },
-  "keywords": ["telegram", "bot", "todo", "grammy"],
+  "keywords": [
+    "telegram",
+    "bot",
+    "todo",
+    "grammy"
+  ],
   "author": "",
   "license": "MIT"
 }

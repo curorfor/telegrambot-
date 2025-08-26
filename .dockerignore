@@ -79,10 +79,19 @@ docker-compose*
 
 # Documentation
 README.md
+CHANGELOG.md
 docs/
+
+# Backup files
+backups/
+*.backup
+*.bak
 
 # Test files
 test/
 tests/
 *.test.js
 *.spec.js
+
+# Library files
+library/
