@@ -79,6 +79,11 @@ export class CallbackHandler {
         this.register('show_my_teams', this.handleShowMyTeams);
         this.register('team_settings', this.handleTeamSettings);
         
+        // Team management handlers (direct actions)
+        this.register('team_members', this.handleTeamMembers);
+        this.register('team_tasks', this.handleTeamTasks);
+        this.register('show_team', this.handleShowTeam);
+        
         // Team management handlers (regex patterns)
         this.register(/^show_team_(.+)$/, this.handleShowTeam);
         this.register(/^leave_team_(.+)$/, this.handleLeaveTeam);

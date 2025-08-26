@@ -202,6 +202,16 @@ class DatabaseService {
             // Update global settings
             this.data.globalSettings.lastUpdated = new Date().toISOString();
             
+            // Update app statistics
+            const stats = this.getStats();
+            this.data.appStats = {
+                totalUsers: stats.users,
+                totalTeams: stats.teams,
+                totalTasks: stats.total_tasks,
+                completedTasks: stats.completed_tasks,
+                completionRate: stats.completion_rate
+            };
+            
             const dataToSave = JSON.stringify(this.data, null, 2);
             await fs.writeFile(this.dataFile, dataToSave, 'utf8');
             
