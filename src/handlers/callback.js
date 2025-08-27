@@ -242,16 +242,14 @@ export class CallbackHandler {
         }
 
         const keyboard = keyboardBuilder
-            .button(`⏳ Faol vazifalar (${activeTasks.length})`, 'show_active_tasks')
+            .button(`⏳ Faol (${activeTasks.length})`, 'show_active_tasks')
             .button(`✅ Bajarilgan (${completedTasks.length})`, 'show_completed_tasks')
             .row()
-            .button('📅 Bugungi vazifalar', 'show_today_tasks')
-            .button('📁 Kategoriyalar', 'show_categories_menu')
-            .row()
             .button('➕ Yangi vazifa', 'add_task')
-            .button('🕌 Namaz vaqtlari', 'show_prayer_times')
+            .button('📅 Bugun', 'show_today_tasks')
             .row()
-            .button('⚙️ Boshqarish', 'manage_tasks_menu')
+            .button('🕌 Namaz', 'show_prayer_times')
+            .button('⚙️ Boshqalar', 'manage_tasks_menu')
             .build();
 
         await safeEdit(ctx, message, { reply_markup: keyboard, parse_mode: 'Markdown' });
@@ -617,9 +615,6 @@ export class CallbackHandler {
             .button('📊 Statistika', 'detailed_stats')
             .button('🗂️ Kategoriyalar', 'show_categories_menu')
             .row()
-            .button('🔄 Ma\'lumotlarni eksport', 'export_data')
-            .button('🧹 Tozalash', 'cleanup_menu')
-            .row()
             .back('back_to_main_tasks')
             .build();
 
@@ -649,9 +644,7 @@ export class CallbackHandler {
         profileText += `📈 **Bajarish darajasi:** ${stats.completionRate}%\n`;
 
         const keyboard = keyboardBuilder
-            .button('⚙️ Sozlamalar', 'simple_settings')
-            .row()
-            .button('📊 Batafsil statistika', 'detailed_stats')
+            .button('📊 Statistika', 'detailed_stats')
             .build();
 
         await safeEdit(ctx, profileText, { reply_markup: keyboard, parse_mode: 'Markdown' });
@@ -1109,19 +1102,18 @@ export class CallbackHandler {
             reply_markup: keyboard, 
             parse_mode: 'Markdown' 
         });
-        await safeAnswer(ctx, '✅ Vazifa yaratildi!');
     }
     async handleSettings(ctx, data) { 
-        await safeAnswer(ctx, '🚧 Sozlamalar funksiyasi ishlab chiqilmoqda'); 
+        await safeEdit(ctx, '🚧 **Sozlamalar**\n\nBu funksiya hozircha ishlab chiqilmoqda.\nTez orada qo\'shiladi!', { parse_mode: 'Markdown' }); 
     }
     async handleNotificationSettings(ctx, data) { 
-        await safeAnswer(ctx, '🚧 Bildirishnoma sozlamalari ishlab chiqilmoqda'); 
+        await safeEdit(ctx, '🚧 **Bildirishnomalar**\n\nBildirishnoma sozlamalari hozircha ishlab chiqilmoqda.\nTez orada qo\'shiladi!', { parse_mode: 'Markdown' }); 
     }
     async handleShowTemplates(ctx, data) { 
-        await safeAnswer(ctx, '🚧 Shablonlar funksiyasi ishlab chiqilmoqda'); 
+        await safeEdit(ctx, '🚧 **Shablonlar**\n\nVazifa shablonlari funksiyasi hozircha ishlab chiqilmoqda.\nTez orada qo\'shiladi!', { parse_mode: 'Markdown' }); 
     }
     async handleShowTemplateCategory(ctx, data) { 
-        await safeAnswer(ctx, '🚧 Shablon kategoriyalari ishlab chiqilmoqda'); 
+        await safeEdit(ctx, '🚧 **Shablon kategoriyalari**\n\nShablon kategoriyalari hozircha ishlab chiqilmoqda.\nTez orada qo\'shiladi!', { parse_mode: 'Markdown' }); 
     }
 
     /**
@@ -1204,9 +1196,8 @@ export class CallbackHandler {
 
             const keyboard = new InlineKeyboard()
                 .text('🔄 Hududni o\'zgartirish', keyboardBuilder.encodeCallback('change_prayer_region', {}))
-                .text('⚙️ Bildirishnoma', keyboardBuilder.encodeCallback('notification_settings', {}))
                 .row()
-                .text('⬅️ Bosh menyu', keyboardBuilder.encodeCallback('start_fresh', {}));
+                .text('⬅️ Orqaga', keyboardBuilder.encodeCallback('start_fresh', {}));
 
             await safeEdit(ctx, formattedTimes, {
                 reply_markup: keyboard,
@@ -1219,7 +1210,8 @@ export class CallbackHandler {
             
             const keyboard = new InlineKeyboard()
                 .text('🔄 Qaytadan urinish', keyboardBuilder.encodeCallback('show_prayer_times', {}))
-                .text('⬅️ Bosh menyu', keyboardBuilder.encodeCallback('start_fresh', {}));
+                .row()
+                .text('⬅️ Orqaga', keyboardBuilder.encodeCallback('start_fresh', {}));
                 
             await safeEdit(ctx, '❌ **Namaz vaqtlarini olishda xatolik**\n\nIltimos, qaytadan urinib ko\'ring.', {
                 reply_markup: keyboard,
@@ -1360,9 +1352,9 @@ export class CallbackHandler {
             
             keyboard = new InlineKeyboard()
                 .text('➕ Jamoa yaratish', keyboardBuilder.encodeCallback('create_team_quick', {}))
-                .text('🔑 Jamoaga qo\'shilish', keyboardBuilder.encodeCallback('join_team_quick', {}))
+                .text('🔑 Qo\'shilish', keyboardBuilder.encodeCallback('join_team_quick', {}))
                 .row()
-                .text('⬅️ Bosh menyu', keyboardBuilder.encodeCallback('start_fresh', {}));
+                .text('⬅️ Orqaga', keyboardBuilder.encodeCallback('start_fresh', {}));
                 
         } else {
             message += `✅ **Siz ${userTeams.length} ta jamoada a'zosiz**\n\n`;
@@ -1385,13 +1377,10 @@ export class CallbackHandler {
             message += `📝 Jami vazifalar: ${totalTasks} ta\n`;
             
             keyboard = new InlineKeyboard()
-                .text('👥 Jamoa ro\'yxati', keyboardBuilder.encodeCallback('show_my_teams', {}))
-                .text('➕ Yangi jamoa', keyboardBuilder.encodeCallback('create_team_quick', {}))
+                .text('👥 Jamoalarim', keyboardBuilder.encodeCallback('show_my_teams', {}))
+                .text('➕ Yangi', keyboardBuilder.encodeCallback('create_team_quick', {}))
                 .row()
-                .text('🔑 Jamoaga qo\'shilish', keyboardBuilder.encodeCallback('join_team_quick', {}))
-                .text('⚙️ Sozlamalar', keyboardBuilder.encodeCallback('team_settings', {}))
-                .row()
-                .text('⬅️ Bosh menyu', keyboardBuilder.encodeCallback('start_fresh', {}));
+                .text('⬅️ Orqaga', keyboardBuilder.encodeCallback('start_fresh', {}));
         }
         
         await safeEdit(ctx, message, {
@@ -1709,7 +1698,6 @@ export class CallbackHandler {
                 reply_markup: keyboard,
                 parse_mode: 'Markdown'
             });
-            await safeAnswer(ctx, 'Vazifa yo\'q');
             return;
         }
         
@@ -1745,7 +1733,6 @@ export class CallbackHandler {
             reply_markup: keyboard,
             parse_mode: 'Markdown'
         });
-        await safeAnswer(ctx, '📝 Jamoa vazifalar');
     }
 
     /**
@@ -1757,7 +1744,7 @@ export class CallbackHandler {
         
         const team = teamService.getTeam(teamId);
         if (!team || !teamService.isUserInTeam(userId, teamId)) {
-            await safeAnswer(ctx, '❌ Ruxsat yo\'q');
+            await safeEdit(ctx, '❌ **Ruxsat yo\'q**\n\nBu jamoa ma\'lumotlarini ko\'rishga ruxsatingiz yo\'q.', { parse_mode: 'Markdown' });
             return;
         }
         
@@ -1796,7 +1783,6 @@ export class CallbackHandler {
             reply_markup: keyboard,
             parse_mode: 'Markdown'
         });
-        await safeAnswer(ctx, '👥 A\'zolar ro\'yxati');
     }
 
     /**
@@ -1889,7 +1875,7 @@ export class CallbackHandler {
             `• **Kopyalash:** Kodni nusxalab boshqa joyga yozing\n` +
             `• **Screenshot:** Bu xabarni rasmga oling\n\n` +
             `💡 **Qo'shilish:**\n` +
-            `Boshqa foydalanuvchilar \`${team.id}\` kodini `/jointeam` buyrug'i bilan kirishib jamoaga qo'shilishlari mumkin.\n\n` +
+            `Boshqa foydalanuvchilar \`${team.id}\` kodini \`/jointeam\` buyrug'i bilan kirishib jamoaga qo'shilishlari mumkin.\n\n` +
             `🔐 **Xavfsizlik:**\n` +
             `Kod faqat ishonchli odamlar bilan ulashing. Har kim jamoaga qo'shilishi mumkin.`;
         
@@ -2255,8 +2241,8 @@ export class CallbackHandler {
             };
             
             // Save to team data
-            if (!team.tasks) team.tasks = [];
-            team.tasks.push(teamTask);
+            if (!team.sharedTasks) team.sharedTasks = [];
+            team.sharedTasks.push(teamTask);
             
             await teamService.saveTeamData();
             

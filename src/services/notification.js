@@ -53,7 +53,10 @@ class NotificationService {
     stop() {
         if (this.cronJob) {
             this.cronJob.stop();
-            this.cronJob.destroy();
+            // Note: destroy() method may not exist in all node-cron versions
+            if (typeof this.cronJob.destroy === 'function') {
+                this.cronJob.destroy();
+            }
         }
         this.isRunning = false;
         logger.info('🔕 Notification system stopped');

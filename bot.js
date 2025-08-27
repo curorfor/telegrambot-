@@ -117,14 +117,9 @@ class TodoBot {
 
         const keyboard = keyboardBuilder
             .button('📋 Vazifalarim', 'back_to_main_tasks')
-            .button('➕ Yangi vazifa', 'add_task')
-            .row()
             .button('👥 Jamoa', 'show_team_features')
+            .row()
             .button('👤 Profil', 'view_profile')
-            .row()
-            .button('📊 Statistika', 'show_stats')
-            .button('🕌 Namaz vaqtlari', 'show_prayer_times')
-            .row()
             .button('❓ Yordam', 'show_help')
             .build();
 
@@ -169,7 +164,7 @@ class TodoBot {
      * Command: /profile
      */
     async handleProfile(ctx) {
-        const userId = ctx.from.id.toString();
+    const userId = ctx.from.id.toString();
         const user = db.getUser(userId);
         
         logger.command('profile', userId);
@@ -181,18 +176,18 @@ class TodoBot {
         profileText += `📝 **Jami:** ${stats.total} ta vazifa\n`;
         profileText += `✅ **Bajarilgan:** ${stats.completed} ta\n`;
         profileText += `⏳ **Faol:** ${stats.active} ta\n`;
-        profileText += `📈 **Bajarish darajasi:** ${stats.completionRate}%\n`;
+    profileText += `📈 **Bajarish darajasi:** ${stats.completionRate}%\n`;
 
         const keyboard = keyboardBuilder
             .button('⚙️ Sozlamalar', 'simple_settings')
-            .row()
+        .row()
             .button('📊 Batafsil statistika', 'detailed_stats')
             .build();
 
-        await ctx.reply(profileText, { 
-            reply_markup: keyboard, 
-            parse_mode: 'Markdown' 
-        });
+    await ctx.reply(profileText, {
+        reply_markup: keyboard,
+        parse_mode: 'Markdown'
+    });
     }
 
     /**
@@ -228,7 +223,7 @@ class TodoBot {
      * Command: /stats
      */
     async handleStats(ctx) {
-        const userId = ctx.from.id.toString();
+    const userId = ctx.from.id.toString();
         const user = db.getUser(userId);
         
         logger.command('stats', userId);
@@ -277,13 +272,13 @@ class TodoBot {
 
             const keyboard = new InlineKeyboard()
                 .text('🔄 Hududni o\'zgartirish', keyboardBuilder.encodeCallback('change_prayer_region', {}))
-                .row()
+        .row()
                 .text('⚙️ Bildirishnoma sozlash', keyboardBuilder.encodeCallback('notification_settings', {}));
 
             await ctx.reply(formattedTimes, {
-                reply_markup: keyboard,
-                parse_mode: 'Markdown'
-            });
+        reply_markup: keyboard,
+        parse_mode: 'Markdown'
+    });
 
         } catch (error) {
             logger.error('Failed to get prayer times', error);
@@ -314,13 +309,13 @@ class TodoBot {
                 '• Progress kuzatish\n' +
                 '• Samaradorlikni oshirish',
                 { 
-                    reply_markup: keyboard, 
-                    parse_mode: 'Markdown' 
+        reply_markup: keyboard,
+        parse_mode: 'Markdown'
                 }
             );
-            return;
-        }
-        
+        return;
+    }
+
         if (userTeams.length === 1) {
             // Show the single team
             const team = userTeams[0];
@@ -344,14 +339,14 @@ class TodoBot {
                    .text('🔑 Jamoaga qo\'shilish', keyboardBuilder.encodeCallback('join_team_quick', {}));
             
             await ctx.reply(message, {
-                reply_markup: keyboard,
-                parse_mode: 'Markdown'
-            });
+        reply_markup: keyboard,
+        parse_mode: 'Markdown'
+    });
         } else {
             // Multiple teams - show selection
             let message = `👥 **SIZNING JAMOALARINGIZ (${userTeams.length})**\n\n`;
-            
-            const keyboard = new InlineKeyboard();
+
+    const keyboard = new InlineKeyboard();
             userTeams.forEach((team, index) => {
                 const stats = teamService.getTeamStats(team.id);
                 const isAdmin = teamService.isTeamAdmin(userId, team.id);
@@ -361,29 +356,29 @@ class TodoBot {
                 message += `   🆔 \`${team.id}\` | 👥 ${stats.totalMembers} a'zo\n\n`;
                 
                 keyboard.text(`${index + 1}. ${team.name}`, keyboardBuilder.encodeCallback('show_team', { teamId: team.id }));
-                keyboard.row();
+            keyboard.row();
             });
             
             keyboard.text('➕ Yangi jamoa', keyboardBuilder.encodeCallback('create_team_quick', {}))
                    .text('🔑 Jamoaga qo\'shilish', keyboardBuilder.encodeCallback('join_team_quick', {}));
             
             await ctx.reply(message, { 
-                reply_markup: keyboard, 
-                parse_mode: 'Markdown' 
-            });
-        }
+        reply_markup: keyboard,
+        parse_mode: 'Markdown'
+    });
+}
     }
 
     /**
      * Handle /createteam command
      */
     async handleCreateTeam(ctx) {
-        const userId = ctx.from.id.toString();
+    const userId = ctx.from.id.toString();
         logger.command('createteam', userId);
         
         ctx.state.set('waiting_team_name', { fromCommand: true });
-        
-        await ctx.reply(
+
+                await ctx.reply(
             '👥 **Yangi jamoa yaratish**\n\n' +
             'Jamoa nomini kiriting:\n\n' +
             '💡 *Masalan: "Loyiha jamoasi", "Dars guruhi", "Ish jamoasi"*\n\n' +
@@ -401,8 +396,8 @@ class TodoBot {
         logger.command('jointeam', userId);
         
         ctx.state.set('waiting_team_code', { fromCommand: true });
-        
-        await ctx.reply(
+
+                await ctx.reply(
             '🔑 **Jamoaga qo\'shilish**\n\n' +
             'Jamoa kodini kiriting:\n\n' +
             '💡 *6 raqamli kod, masalan: ABC123*\n\n' +
@@ -422,29 +417,29 @@ class TodoBot {
         const userTeams = teamService.getUserTeams(userId);
         
         if (userTeams.length === 0) {
-            await ctx.reply(
+                await ctx.reply(
                 '❌ **Siz hech qaysi jamoada emassiz**\n\n' +
                 'Vazifa tayinlash uchun avval jamoa yarating yoki jamoaga qo\'shiling.\n\n' +
                 '/createteam - Yangi jamoa yaratish\n' +
                 '/jointeam - Mavjud jamoaga qo\'shilish',
                 { parse_mode: 'Markdown' }
             );
-            return;
-        }
-        
+        return;
+    }
+
         // Check if user has personal tasks to assign
         const user = db.getUser(userId);
         const personalTasks = user.tasks.filter(t => !t.completed && !t.assignedTo);
         
         if (personalTasks.length === 0) {
-            await ctx.reply(
+                await ctx.reply(
                 '📋 **Tayinlash uchun shaxsiy vazifalar yo\'q**\n\n' +
                 'Avval /add buyrug\'i bilan vazifa qo\'shing, keyin uni jamoaga tayinlashingiz mumkin.',
                 { parse_mode: 'Markdown' }
-            );
-            return;
-        }
-        
+                );
+                    return;
+                }
+
         // Show teams to assign to
         let message = `📝 **VAZIFA TAYINLASH**\n\n`;
         message += `Sizda ${personalTasks.length} ta tayinlanmagan vazifa bor.\n\n`;
@@ -468,26 +463,26 @@ class TodoBot {
      * Handle team name input
      */
     async handleTeamName(ctx, teamName) {
-        const userId = ctx.from.id.toString();
+    const userId = ctx.from.id.toString();
         
         if (teamName.length < 3) {
             await ctx.reply('❌ Jamoa nomi juda qisqa. Kamida 3 ta belgi kiriting.');
-            return;
-        }
-
+        return;
+    }
+    
         if (teamName.length > 50) {
             await ctx.reply('❌ Jamoa nomi juda uzun. Maksimal 50 ta belgi.');
-            return;
-        }
+        return;
+    }
 
         try {
             const team = await teamService.createTeam(teamName, userId);
             ctx.state.clear();
-            
-            const keyboard = new InlineKeyboard()
+
+        const keyboard = new InlineKeyboard()
                 .text('👥 Jamoa ma\'lumoti', keyboardBuilder.encodeCallback('show_team', { teamId: team.id }))
                 .text('📤 Kodni ulashish', keyboardBuilder.encodeCallback('share_team_code', { teamId: team.id }))
-                .row()
+            .row()
                 .text('🔑 Yana jamoa yaratish', keyboardBuilder.encodeCallback('create_team_quick', {}))
                 .text('📋 Vazifalar', keyboardBuilder.encodeCallback('back_to_main_tasks', {}));
                 
@@ -499,11 +494,11 @@ class TodoBot {
                 `📅 **Yaratilgan:** ${new Date().toLocaleDateString('uz-UZ')}\n\n` +
                 `📤 **Kodni ulashing:** Boshqa foydalanuvchilar \`${team.id}\` kodi bilan jamoaga qo'shilishlari mumkin.\n\n` +
                 `🎯 Endi vazifalar tayinlashingiz va jamoa bilan samarali ishlashingiz mumkin!`,
-                {
-                    reply_markup: keyboard,
-                    parse_mode: 'Markdown'
-                }
-            );
+            { 
+                reply_markup: keyboard,
+                parse_mode: 'Markdown'
+            }
+        );
             
             logger.info(`Team created: ${teamName} (${team.id}) by user ${userId}`);
             
@@ -522,8 +517,8 @@ class TodoBot {
         
         if (inputTeamId.length !== 6) {
             await ctx.reply('❌ Jamoa kodi 6 ta belgidan iborat bo\'lishi kerak. Qaytadan kiriting.');
-            return;
-        }
+        return;
+    }
 
         try {
             const team = await teamService.joinTeam(inputTeamId, userId);
@@ -531,10 +526,10 @@ class TodoBot {
             
             const stats = teamService.getTeamStats(inputTeamId);
             
-            const keyboard = new InlineKeyboard()
+        const keyboard = new InlineKeyboard()
                 .text('👥 Jamoa ma\'lumoti', keyboardBuilder.encodeCallback('show_team', { teamId: team.id }))
                 .text('📝 Vazifalar', keyboardBuilder.encodeCallback('team_tasks', { teamId: team.id }))
-                .row()
+            .row()
                 .text('👥 A\'zolar', keyboardBuilder.encodeCallback('team_members', { teamId: team.id }))
                 .text('📋 Mening vazifalarim', keyboardBuilder.encodeCallback('back_to_main_tasks', {}));
                 
@@ -546,11 +541,11 @@ class TodoBot {
                 `📝 **Vazifalar:** ${stats.totalTasks} ta\n` +
                 `📅 **Qo'shilgan:** ${new Date().toLocaleDateString('uz-UZ')}\n\n` +
                 `🎉 Endi jamoa vazifalarini ko'rishingiz va bajarishingiz mumkin!`,
-                {
-                    reply_markup: keyboard,
-                    parse_mode: 'Markdown'
-                }
-            );
+            {
+                reply_markup: keyboard,
+                parse_mode: 'Markdown'
+            }
+        );
             
             // Notify team admin
             try {
@@ -564,9 +559,9 @@ class TodoBot {
                     `👤 Jami a'zolar: ${stats.totalMembers} kishi`,
                     {
                         reply_markup: adminKeyboard,
-                        parse_mode: 'Markdown'
-                    }
-                );
+                parse_mode: 'Markdown'
+            }
+        );
             } catch (error) {
                 logger.warn('Could not notify team admin:', error);
             }
@@ -593,7 +588,7 @@ class TodoBot {
         const userId = ctx.from.id.toString();
         const userState = ctx.state.get();
         const { teamId } = userState.data;
-        
+
         if (taskName.length < 3) {
             await ctx.reply('❌ Vazifa nomi juda qisqa. Kamida 3 ta belgi kiriting.');
             return;
@@ -601,22 +596,22 @@ class TodoBot {
 
         if (taskName.length > 100) {
             await ctx.reply('❌ Vazifa nomi juda uzun. Maksimal 100 ta belgi.');
-            return;
-        }
+        return;
+    }
 
         const team = teamService.getTeam(teamId);
         if (!team || !teamService.isUserInTeam(userId, teamId)) {
             await ctx.reply('❌ Jamoa topilmadi yoki ruxsat yo\'q.');
             ctx.state.clear();
-            return;
-        }
+        return;
+    }
 
         // Show date selection for team task
         let message = `📅 **MUDDATNI BELGILANG**\n\n`;
         message += `📝 **Vazifa:** ${taskName}\n`;
         message += `👥 **Jamoa:** ${team.name}\n\n`;
         message += `Vazifa qachon bajarilishi kerak?`;
-        
+
         const keyboard = new InlineKeyboard()
             .text('📅 Bugun', keyboardBuilder.encodeCallback('select_team_task_date', { 
                 teamId, 
@@ -652,7 +647,7 @@ class TodoBot {
         const userId = ctx.from.id.toString();
         const userState = ctx.state.get();
         const { teamId, taskId } = userState.data;
-        
+
         if (noteText.length > 500) {
             await ctx.reply('❌ Izoh juda uzun. Maksimal 500 ta belgi.');
             return;
@@ -662,15 +657,15 @@ class TodoBot {
         if (!team || !teamService.isUserInTeam(userId, teamId)) {
             await ctx.reply('❌ Jamoa topilmadi yoki ruxsat yo\'q.');
             ctx.state.clear();
-            return;
-        }
+        return;
+    }
 
-        const task = team.tasks?.find(t => t.id === taskId);
+        const task = team.sharedTasks?.find(t => t.id === taskId);
         if (!task) {
             await ctx.reply('❌ Vazifa topilmadi.');
             ctx.state.clear();
-            return;
-        }
+        return;
+    }
 
         ctx.state.clear();
 
@@ -685,7 +680,7 @@ class TodoBot {
             await ctx.reply('❌ Xatolik yuz berdi. Iltimos, qaytadan urinib ko\'ring.');
         }
     }
-
+    
     /**
      * Command: /setprayerregion
      */
@@ -719,39 +714,39 @@ class TodoBot {
      * Handle text messages (conversation flow)
      */
     async handleTextMessage(ctx) {
-        const userId = ctx.from.id.toString();
+    const userId = ctx.from.id.toString();
         const userState = ctx.state.get();
         const text = ctx.message.text.trim();
 
         logger.debug(`Text message from ${userId} in state ${userState.state}`, { text });
 
         // Handle based on current state
-        switch (userState.state) {
-            case 'waiting_task_name':
+    switch (userState.state) {
+        case 'waiting_task_name':
                 await this.handleTaskName(ctx, text);
-                break;
-                
+            break;
+            
             case 'waiting_notes':
                 await this.handleTaskNotes(ctx, text);
-                break;
-                
-            case 'waiting_team_name':
+            break;
+            
+        case 'waiting_team_name':
                 await this.handleTeamName(ctx, text);
-                break;
-                
-            case 'waiting_team_code':
+            break;
+            
+        case 'waiting_team_code':
                 await this.handleTeamCode(ctx, text);
                 break;
                 
             case 'waiting_team_task_name':
                 await this.handleTeamTaskName(ctx, text);
-                break;
-                
+            break;
+            
             case 'waiting_completion_note':
                 await this.handleCompletionNoteText(ctx, text);
-                break;
-                
-            default:
+            break;
+            
+        default:
                 // No active conversation, show help
                 await ctx.reply(
                     '❓ Buyruq tanilmadi. Yordam uchun /help ni bosing yoki tugmalardan foydalaning.',
@@ -762,8 +757,8 @@ class TodoBot {
                             .build()
                     }
                 );
-                break;
-        }
+            break;
+    }
     }
 
     /**
@@ -772,14 +767,14 @@ class TodoBot {
     async handleTaskName(ctx, taskName) {
         if (taskName.length < 3) {
             await ctx.reply('❌ Vazifa nomi juda qisqa. Kamida 3 ta belgi kiriting.');
-            return;
-        }
-
+        return;
+    }
+    
         if (taskName.length > 100) {
             await ctx.reply('❌ Vazifa nomi juda uzun. Maksimal 100 ta belgi.');
-            return;
-        }
-
+        return;
+    }
+    
         const userState = ctx.state.get();
         
         // Check if this is for today specifically 
@@ -812,9 +807,9 @@ class TodoBot {
                 reply_markup: keyboard, 
                 parse_mode: 'Markdown' 
             });
-            return;
-        }
-
+        return;
+    }
+    
         // Store task name and move to date selection
         ctx.state.set('waiting_date_selection', { taskName });
 
@@ -822,8 +817,8 @@ class TodoBot {
         let message = `📅 **"${taskName}" vazifasi uchun sanani tanlang:**\n\n`;
         
         // Create clean keyboard with only date options (2 columns)
-        const keyboard = new InlineKeyboard();
-        
+    const keyboard = new InlineKeyboard();
+    
         // Today and Tomorrow in first row
         keyboard.text(dateOptions[0].text, keyboardBuilder.encodeCallback('select_date', { 
             date: dateOptions[0].value, 
@@ -857,7 +852,7 @@ class TodoBot {
      * Handle task notes input
      */
     async handleTaskNotes(ctx, notes) {
-        const userId = ctx.from.id.toString();
+    const userId = ctx.from.id.toString();
         const user = db.getUser(userId);
         const userState = ctx.state.get();
 
@@ -1014,7 +1009,7 @@ class TodoBot {
             const stats = db.getStats();
             logger.info('Bot statistics', stats);
             
-        } catch (error) {
+                        } catch (error) {
             logger.error('Failed to start bot', error);
             process.exit(1);
         }
@@ -1047,8 +1042,8 @@ async function main() {
 
     process.on('SIGTERM', async () => {
         logger.info('Received SIGTERM, shutting down gracefully...');
-        await bot.stop();
-        process.exit(0);
+            await bot.stop();
+            process.exit(0);
     });
 
     // Start the bot

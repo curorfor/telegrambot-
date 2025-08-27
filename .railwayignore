@@ -1,0 +1,12 @@
+# Railway ignore file
+node_modules
+.git
+.gitignore
+README.md
+CHANGELOG.md
+docker-compose*.yml
+Dockerfile
+Dockerfile.dev
+.env.example
+tasks.json
+library/

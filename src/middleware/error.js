@@ -47,17 +47,38 @@ export async function safeEdit(ctx, text, options = {}) {
     }
 }
 
+// Track answered callbacks manually
+const answeredCallbacks = new Set();
+
 /**
  * Safe callback query answering
  */
 export async function safeAnswer(ctx, text = '', showAlert = false) {
     try {
-        if (ctx.callbackQuery && !ctx.callbackQuery.answered) {
+        if (ctx.callbackQuery) {
+            const callbackId = ctx.callbackQuery.id;
+            
+            // Check if we've already answered this callback
+            if (answeredCallbacks.has(callbackId)) {
+                return;
+            }
+            
             await ctx.answerCallbackQuery(text, { show_alert: showAlert });
+            
+            // Mark as answered
+            answeredCallbacks.add(callbackId);
+            
+            // Clean up old entries (keep only last 1000)
+            if (answeredCallbacks.size > 1000) {
+                const entries = Array.from(answeredCallbacks);
+                answeredCallbacks.clear();
+                entries.slice(-500).forEach(id => answeredCallbacks.add(id));
+            }
         }
     } catch (error) {
-        // Only log if it's not already answered
-        if (!error.message?.includes('query is too old')) {
+        // Only log if it's not a "query is too old" or "already answered" error
+        if (!error.message?.includes('query is too old') && 
+            !error.message?.includes('already answered')) {
             logger.warn('Failed to answer callback query', error);
         }
     }
