@@ -66,6 +66,7 @@ class TodoBot {
         this.bot.command('profile', this.handleProfile.bind(this));
         this.bot.command('help', this.handleHelp.bind(this));
         this.bot.command('stats', this.handleStats.bind(this));
+        this.bot.command('notifications', this.handleNotifications.bind(this));
         
         // Prayer commands
         this.bot.command('prayer', this.handlePrayer.bind(this));
@@ -245,6 +246,44 @@ class TodoBot {
         statsText += `✅ Bajarilgan: ${dbStats.completed_tasks} (${dbStats.completion_rate}%)\n`;
 
         await ctx.reply(statsText, { parse_mode: 'Markdown' });
+    }
+
+    /**
+     * Command: /notifications
+     */
+    async handleNotifications(ctx) {
+        const userId = ctx.from.id.toString();
+        
+        logger.command('notifications', userId);
+
+        try {
+            const stats = await this.notificationService.getNotificationStats();
+            
+            if (!stats) {
+                await ctx.reply('❌ Bildirishnoma statistikalarini olishda xatolik yuz berdi.');
+                return;
+            }
+
+            let statsText = `🔔 **BILDIRISHNOMA TIZIMI**\n\n`;
+            statsText += `📊 **Statistika:**\n`;
+            statsText += `👥 Jami foydalanuvchilar: ${stats.totalUsers}\n`;
+            statsText += `✅ Faol foydalanuvchilar: ${stats.activeUsers}\n`;
+            statsText += `🚫 Bloklanganlar: ${stats.blockedUsers}\n`;
+            statsText += `📝 Vazifa bildirish.: ${stats.tasksEnabled}\n`;
+            statsText += `🕌 Namaz bildirish.: ${stats.prayerEnabled}\n`;
+            statsText += `⚙️ Tizim holati: ${stats.systemRunning ? '✅ Ishlamoqda' : '❌ To\'xtatilgan'}\n\n`;
+            
+            if (stats.blockedUsers > 0) {
+                statsText += `⚠️ **Diqqat:** ${stats.blockedUsers} ta foydalanuvchi botni bloklagan.\n`;
+                statsText += `Bu foydalanuvchilarga bildirishnomalar yuborilmaydi.\n\n`;
+            }
+
+            await ctx.reply(statsText, { parse_mode: 'Markdown' });
+
+        } catch (error) {
+            logger.error('Failed to get notification stats:', error);
+            await ctx.reply('❌ Bildirishnoma statistikalarini olishda xatolik yuz berdi.');
+        }
     }
 
     /**

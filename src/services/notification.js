@@ -77,6 +77,19 @@ class NotificationService {
             const allUsers = db.getAllUsers();
             
             for (const [userId, user] of Object.entries(allUsers)) {
+                // Skip users who have blocked the bot
+                if (user.activity?.blockedBot) {
+                    logger.debug(`Skipping notifications for blocked user ${userId}`);
+                    continue;
+                }
+
+                // Skip users with notifications disabled
+                if (user.preferences?.notifications?.tasks === false && 
+                    user.preferences?.notifications?.prayer === false) {
+                    logger.debug(`Skipping notifications for user ${userId} - all notifications disabled`);
+                    continue;
+                }
+
                 // Check task notifications
                 const taskNotifications = await this.checkTaskNotifications(userId, user, now);
                 notificationsSent += taskNotifications;
@@ -105,6 +118,11 @@ class NotificationService {
     async checkTaskNotifications(userId, user, now) {
         let notificationsSent = 0;
         const tasks = user.tasks || [];
+
+        // Check if task notifications are enabled
+        if (user.preferences?.notifications?.tasks === false) {
+            return 0;
+        }
 
         for (const task of tasks) {
             if (task.completed) continue;
@@ -147,7 +165,14 @@ class NotificationService {
                         logger.info(`📤 Task notification sent to user ${userId}: "${task.name}" (${interval.name})`);
                         
                     } catch (error) {
-                        logger.error(`Failed to send task notification to user ${userId}:`, error);
+                        if (this.isUserBlockedError(error)) {
+                            logger.warn(`User ${userId} has blocked the bot, marking user as inactive`);
+                            await this.markUserAsBlocked(userId);
+                        } else if (this.isRetryableError(error)) {
+                            logger.warn(`Retryable error for user ${userId}, will try again later:`, error.message);
+                        } else {
+                            logger.error(`Failed to send task notification to user ${userId}:`, error);
+                        }
                     }
                 }
             }
@@ -164,7 +189,7 @@ class NotificationService {
 
         // Check if user has prayer notifications enabled
         const prayerRegion = user.preferences?.prayerRegion || user.prayerRegion;
-        const prayerNotificationsEnabled = user.preferences?.prayerNotifications !== false; // Default enabled
+        const prayerNotificationsEnabled = user.preferences?.notifications?.prayer !== false; // Default enabled
 
         if (!prayerRegion || !prayerNotificationsEnabled) {
             return 0;
@@ -218,7 +243,14 @@ class NotificationService {
                             logger.info(`🕌 Prayer notification sent to user ${userId}: ${prayer} in ${interval.minutes} minutes`);
                             
                         } catch (error) {
-                            logger.error(`Failed to send prayer notification to user ${userId}:`, error);
+                            if (this.isUserBlockedError(error)) {
+                                logger.warn(`User ${userId} has blocked the bot, marking user as inactive`);
+                                await this.markUserAsBlocked(userId);
+                            } else if (this.isRetryableError(error)) {
+                                logger.warn(`Retryable error for user ${userId}, will try again later:`, error.message);
+                            } else {
+                                logger.error(`Failed to send prayer notification to user ${userId}:`, error);
+                            }
                         }
                     }
                 }
@@ -255,6 +287,140 @@ class NotificationService {
         
         const notificationKey = `${prayer}_${interval.id}`;
         return !user.prayerNotifications[today]?.[notificationKey];
+    }
+
+    /**
+     * Check if error indicates user has blocked the bot
+     */
+    isUserBlockedError(error) {
+        if (!error || !error.message) return false;
+        
+        const blockedMessages = [
+            'bot was blocked by the user',
+            'user is deactivated',
+            'chat not found',
+            'bot is not a member'
+        ];
+        
+        return blockedMessages.some(msg => 
+            error.message.toLowerCase().includes(msg.toLowerCase())
+        );
+    }
+
+    /**
+     * Check if error is retryable
+     */
+    isRetryableError(error) {
+        if (!error || !error.message) return false;
+        
+        const retryableMessages = [
+            'too many requests',
+            'network error',
+            'timeout',
+            'temporarily unavailable'
+        ];
+        
+        return retryableMessages.some(msg => 
+            error.message.toLowerCase().includes(msg.toLowerCase())
+        );
+    }
+
+    /**
+     * Mark user as blocked/inactive
+     */
+    async markUserAsBlocked(userId) {
+        try {
+            const { db } = await import('./database.js');
+            const user = db.getUser(userId);
+            
+            if (!user.preferences) user.preferences = {};
+            if (!user.preferences.notifications) user.preferences.notifications = {};
+            
+            // Disable all notifications for blocked users
+            user.preferences.notifications.tasks = false;
+            user.preferences.notifications.prayer = false;
+            user.preferences.notifications.reminders = false;
+            
+            // Add blocked status
+            user.activity.blockedBot = true;
+            user.activity.blockedAt = new Date().toISOString();
+            
+            await db.saveData();
+            logger.info(`User ${userId} marked as blocked and notifications disabled`);
+            
+        } catch (error) {
+            logger.error(`Failed to mark user ${userId} as blocked:`, error);
+        }
+    }
+
+    /**
+     * Reset user blocked status (for admin/testing)
+     */
+    async resetUserBlockedStatus(userId) {
+        try {
+            const { db } = await import('./database.js');
+            const user = db.getUser(userId);
+            
+            if (user.activity?.blockedBot) {
+                user.activity.blockedBot = false;
+                user.activity.unblockedAt = new Date().toISOString();
+                
+                // Re-enable notifications
+                if (!user.preferences) user.preferences = {};
+                if (!user.preferences.notifications) user.preferences.notifications = {};
+                
+                user.preferences.notifications.tasks = true;
+                user.preferences.notifications.prayer = true;
+                user.preferences.notifications.reminders = true;
+                
+                await db.saveData();
+                logger.info(`User ${userId} unblocked and notifications re-enabled`);
+                return true;
+            }
+            
+            return false;
+        } catch (error) {
+            logger.error(`Failed to reset blocked status for user ${userId}:`, error);
+            return false;
+        }
+    }
+
+    /**
+     * Get notification statistics
+     */
+    async getNotificationStats() {
+        try {
+            const { db } = await import('./database.js');
+            const allUsers = db.getAllUsers();
+            
+            let totalUsers = 0;
+            let blockedUsers = 0;
+            let tasksEnabled = 0;
+            let prayerEnabled = 0;
+            
+            for (const user of Object.values(allUsers)) {
+                totalUsers++;
+                
+                if (user.activity?.blockedBot) {
+                    blockedUsers++;
+                } else {
+                    if (user.preferences?.notifications?.tasks !== false) tasksEnabled++;
+                    if (user.preferences?.notifications?.prayer !== false) prayerEnabled++;
+                }
+            }
+            
+            return {
+                totalUsers,
+                blockedUsers,
+                activeUsers: totalUsers - blockedUsers,
+                tasksEnabled,
+                prayerEnabled,
+                systemRunning: this.isRunning
+            };
+        } catch (error) {
+            logger.error('Failed to get notification stats:', error);
+            return null;
+        }
     }
 
     /**

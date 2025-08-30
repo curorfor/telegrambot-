@@ -8,6 +8,8 @@
     "start": "node bot.js",
     "dev": "nodemon bot.js",
     "build": "echo 'No build step required'",
+    "validate": "node validate-env.js",
+    "test:notifications": "node test-notifications.js",
     "docker:build": "docker build -t telegram-todo-bot .",
     "docker:run": "docker run -d --name telegram-todo-bot telegram-todo-bot",
     "docker:stop": "docker stop telegram-todo-bot && docker rm telegram-todo-bot",
