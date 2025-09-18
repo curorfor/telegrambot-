@@ -1,35 +1,56 @@
-# Telegram To-Do Bot
+# 🤖 Telegram Todo Bot - FastAPI Version
 
-grammY kutubxonasi yordamida yaratilgan Telegram To-Do bot.
+A modern, feature-rich Telegram bot for task management with team collaboration, built with **FastAPI** and **aiogram**.
 
-## Xususiyatlari
+## ✨ Features
 
-- ✅ Vazifalar qo'shish (/add)
-- 📋 Vazifalar ro'yxatini ko'rish (/tasks)  
-- ✅ Vazifalarni bajarilgan deb belgilash (/complete)
-- 🗑️ Vazifalarni o'chirish (/delete)
-- ⏰ Avtomatik eslatma (notification) tizimi
-- 📊 Vazifa darajalari (low, medium, high)
-- 💾 JSON fayl orqali ma'lumotlar saqlash
-- 🔄 Takrorlanadigan vazifalar
-- 🔔 Smart eslatmalar (1 kun/1 soat/15 daqiqa/vaqti)
-- 🧩 Shablonlar orqali tez vazifa yaratish
-- 🎙️ Ovozli xabar va 📎 media biriktirmalar
-- 🕌 Namoz vaqtlari (/prayer, /setprayerregion) va bildirishnomalar
-- 🪪 Ro'yxatdan o'tish va yangilanishlar xabari (/register, /updates)
+- 📝 **Task Management**: Create, complete, and organize tasks
+- ⏰ **Smart Notifications**: Timely reminders for upcoming tasks
+- 👥 **Team Collaboration**: Create teams and assign tasks
+- 🕌 **Prayer Times**: Get accurate prayer times with notifications
+- 📊 **Statistics**: Track productivity and progress
+- 🔔 **Notification System**: Customizable reminder system
+- 🌐 **Multi-language**: Uzbek language support
 
-## O'rnatish
+## 🚀 Quick Start
 
-1. Loyihani klonlang yoki yuklab oling
-2. Dependencylarni o'rnating:
-```bash
-npm install
-```
+### Prerequisites
 
-3. Botni ishga tushiring:
-```bash
-npm start
-```
+- Python 3.9+
+- Telegram Bot Token (from [@BotFather](https://t.me/botfather))
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone <your-repo-url>
+   cd telegrambot
+   ```
+
+2. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. **Configure environment**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your bot token
+   ```
+
+4. **Run migration (if migrating from Node.js)**
+   ```bash
+   python migrate_data.py
+   ```
+
+5. **Start the bot**
+   ```bash
+   # Development
+   python main.py
+
+   # Production with Uvicorn
+   uvicorn main:app --host 0.0.0.0 --port 8000
+   ```
 
 ## Buyruqlar
 
